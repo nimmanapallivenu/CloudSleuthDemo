@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="30 seconds">
+    <timestamp datePattern="yyyyMMdd'_'HHmmss" key="timestamp-by-second"/>
+    <springProperty defaultValue="workflow-server" name="APP_NAME"
+                    source="spring.application.name"/>
+    <property name="LOG_PATH" value="/opt/dep/logs/${APP_NAME}"/>
+    <property name="LOG_PATTERN" scope="context"
+              value="%d{yyyy-MM-dd HH:mm:ss} [${HOSTNAME}] [%X{system:Workflow}] [${APP_NAME},%X{X-B3-TraceId:-0000000000000000}] %X{context} %-5level %logger{36} - %msg%n"/>
+    <property name="LOG_FILE" value="${LOG_PATH}/${APP_NAME}.log"/>
+
+    <appender class="ch.qos.logback.core.rolling.RollingFileAppender"
+              name="FILE">
+        <file>${LOG_FILE}</file>
+        <append>true</append>
+        <encoder>
+            <pattern>${LOG_PATTERN}</pattern>
+            <outputPatternAsHeader>true</outputPatternAsHeader>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/${APP_NAME}-%d{yyyyMMdd}-%i.log.zip
+            </fileNamePattern>
+            <maxHistory>60</maxHistory>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>
+                    20MB
+                </maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <appender class="ch.qos.logback.core.ConsoleAppender" name="STDOUT">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>${LOG_PATTERN}</Pattern>
+        </layout>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
